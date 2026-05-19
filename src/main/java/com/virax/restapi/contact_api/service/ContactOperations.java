@@ -8,7 +8,11 @@ import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.virax.restapi.contact_api.dtos.ContactDto;
 import com.virax.restapi.contact_api.mappers.ContactMapper;
@@ -26,15 +30,15 @@ public class ContactOperations {
 	
 	Logger logger = LogManager.getLogger(ContactOperations.class);
 	
-	public boolean addContact(ContactDto c) {
+	public ContactDto addContact(ContactDto c) {
 		
 		if (contactRepository.findById(c.getMobileNumber()).isPresent()) {
 			logger.info("Contact already exist with number" + c.getMobileNumber());
-			return false;
+			throw new ResponseStatusException(HttpStatus.CONFLICT,"Contact already exists!");
 		}
 		else {
-			contactRepository.save(contactMapper.toContact(c));
-			return true;
+			Contact savedContact = contactRepository.save(contactMapper.toContact(c));
+			return contactMapper.toContactDto(savedContact);
 		}
 	}
 	
@@ -45,7 +49,8 @@ public class ContactOperations {
 	}
 	
 	public ContactDto getContactByMobileNumber(String mobileNumber) {
-		Contact contact = contactRepository.getReferenceById(mobileNumber);
+		Contact contact = contactRepository.findById(mobileNumber)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Contact not found"));
 		return contactMapper.toContactDto(contact);
 	}
 	
@@ -58,14 +63,23 @@ public class ContactOperations {
 	}
 	
 	public void updateContactName(String mobileNumber, String newName) {
+		if (!contactRepository.existsById(mobileNumber)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"mobile number not exists");
+		}
 		contactRepository.updateContactName(mobileNumber, newName);
 		logger.info("name updated for contact with number " + mobileNumber);
 	}
 	
 	public void updateContact(String mobileNumber, ContactDto contactDto) {
+		if (!contactRepository.existsById(mobileNumber)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"mobile number not exists");
+		}
 		contactRepository.updateContact(mobileNumber,contactMapper.toContact(contactDto));
 	}
 	public void deleteContactByMobileNumber(String mobileNumber) {
+		if (!contactRepository.existsById(mobileNumber)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,"mobile number not exists");
+		}
 		contactRepository.deleteById(mobileNumber);
 		logger.info("contact deleted with number " + mobileNumber);
 	}
