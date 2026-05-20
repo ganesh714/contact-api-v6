@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.virax.restapi.contact_api.dtos.ContactDto;
 import com.virax.restapi.contact_api.service.ContactOperations;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @CrossOrigin(origins = "*")
 @RestController
 public class ContactController {
@@ -24,6 +26,10 @@ public class ContactController {
 	@Autowired
 	ContactOperations co;
 	
+	@Operation(
+			summary = "for adding new contaacts",
+			description = "this required fileds of number,name,type and email"
+	)
 	@PostMapping("add/contact")
 	public ResponseEntity<ContactDto> addContact(@RequestBody ContactDto contactDto) {
 		return new ResponseEntity<>(co.addContact(contactDto),HttpStatus.CREATED);
