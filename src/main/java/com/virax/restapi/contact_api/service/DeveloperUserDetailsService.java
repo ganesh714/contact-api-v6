@@ -9,6 +9,9 @@ import com.virax.restapi.contact_api.model.Developer;
 import com.virax.restapi.contact_api.model.DeveloperUserDetails;
 import com.virax.restapi.contact_api.repository.DeveloperRespository;
 
+import io.swagger.v3.oas.annotations.servers.Server;
+
+@Server
 public class DeveloperUserDetailsService implements UserDetailsService{
 	
 	@Autowired
