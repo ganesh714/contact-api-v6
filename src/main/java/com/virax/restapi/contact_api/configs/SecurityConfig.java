@@ -1,7 +1,10 @@
 package com.virax.restapi.contact_api.configs;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,10 +18,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.virax.restapi.contact_api.service.DeveloperUserDetailsService;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // for multi static users auth
 public class SecurityConfig {
+	
+	@Autowired
+	DeveloperUserDetailsService developerUserDetailsService;
 	
 //	CSRF disble Only
 //	@Bean
@@ -37,6 +45,7 @@ public class SecurityConfig {
 				.build();
 	}
 	
+	/*
 	@Bean
 	public UserDetailsService getUserDetailsService(PasswordEncoder passwordEncoder) {
 		
@@ -59,6 +68,13 @@ public class SecurityConfig {
 				.build();
 		
 		return new InMemoryUserDetailsManager(raj,venkat,gani);
+	} */
+	
+	public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
+		DaoAuthenticationProvider auth = new DaoAuthenticationProvider(developerUserDetailsService);
+		auth.setPasswordEncoder(passwordEncoder);
+		
+		return auth;
 	}
 	
 	@Bean
