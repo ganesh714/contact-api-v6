@@ -40,7 +40,9 @@ public class SecurityConfig {
 	public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception {
 		
 		return http.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests( auth -> auth.anyRequest().authenticated()) // for static user based auth
+				.authorizeHttpRequests( auth -> auth
+						.requestMatchers("/api/developers/add").permitAll()
+						.anyRequest().authenticated()) // for static user based auth
 				.httpBasic(Customizer.withDefaults()) // for static user based auth
 				.build();
 	}
