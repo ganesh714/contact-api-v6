@@ -6,14 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.virax.restapi.contact_api.model.Developer;
 import com.virax.restapi.contact_api.repository.DeveloperRespository;
 
-import io.swagger.v3.oas.annotations.servers.Server;
-
-@Server
+@Service
 public class DeveloperService {
 	
 	@Autowired
@@ -27,7 +26,8 @@ public class DeveloperService {
 			throw new ResponseStatusException(HttpStatus.CONFLICT,"developer already exist");
 		}
 		else {
-			developer.setPassward(passwordEncoder.encode(developer.getPassward()));
+			String enPass = passwordEncoder.encode(developer.getPassward());
+			developer.setPassward(enPass);
 			return developerRespository.save(developer);
 		}
 	}
