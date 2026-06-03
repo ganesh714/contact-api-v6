@@ -3,6 +3,8 @@ package com.virax.restapi.contact_api.configs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -24,65 +26,102 @@ import com.virax.restapi.contact_api.service.DeveloperUserDetailsService;
 @EnableWebSecurity
 @EnableMethodSecurity // for multi static users auth
 public class SecurityConfig {
-	
+
 	@Autowired
 	DeveloperUserDetailsService developerUserDetailsService;
-	
-//	CSRF disble Only
-//	@Bean
-//	public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception{
-//		
-//		return http.csrf(AbstractHttpConfigurer::disable).build();
-//	}
-	
+
+	// CSRF disble Only
+	// @Bean
+	// public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws
+	// Exception{
+	//
+	// return http.csrf(AbstractHttpConfigurer::disable).build();
+	// }
+
 	// for multi static users auth
 	@Bean
 	public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception {
-		
+
 		return http.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests( auth -> auth
-						.dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll() //, when a request fails to parse (e.g., due to invalid JSON), it forwards the request to the /error endpoint. However, since the /error endpoint was not permitted in your SecurityConfig, Spring Security intercepts the forward and returns a 401 Unauthorized, hiding the real 400 Bad Request error! so by adding this line you can see actual error
+				.authorizeHttpRequests(auth -> auth
+						.dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll() // , when a request
+																									// fails to parse
+																									// (e.g., due to
+																									// invalid JSON), it
+																									// forwards the
+																									// request to the
+																									// /error endpoint.
+																									// However, since
+																									// the /error
+																									// endpoint was not
+																									// permitted in your
+																									// SecurityConfig,
+																									// Spring Security
+																									// intercepts the
+																									// forward and
+																									// returns a 401
+																									// Unauthorized,
+																									// hiding the real
+																									// 400 Bad Request
+																									// error! so by
+																									// adding this line
+																									// you can see
+																									// actual error
 						.requestMatchers("/api/developers/add").permitAll()
 						.anyRequest().authenticated()) // for static user based auth
 				.httpBasic(Customizer.withDefaults()) // for static user based auth
 				.build();
 	}
-	
+
 	/*
-	@Bean
-	public UserDetailsService getUserDetailsService(PasswordEncoder passwordEncoder) {
-		
-		UserDetails raj = User.builder()
-				.username("raj")
-				.password(passwordEncoder.encode("raj1"))
-				.roles("DEV")
-				.build();
-		
-		UserDetails venkat = User.builder()
-				.username("venkat")
-				.password(passwordEncoder.encode("venkat1"))
-				.roles("USER")
-				.build();
-		
-		UserDetails gani = User.builder()
-				.username("gani")
-				.password(passwordEncoder.encode("gani1"))
-				.roles("ADMIN")
-				.build();
-		
-		return new InMemoryUserDetailsManager(raj,venkat,gani);
-	} */
+	 * @Bean
+	 * public UserDetailsService getUserDetailsService(PasswordEncoder
+	 * passwordEncoder) {
+	 * 
+	 * UserDetails raj = User.builder()
+	 * .username("raj")
+	 * .password(passwordEncoder.encode("raj1"))
+	 * .roles("DEV")
+	 * .build();
+	 * 
+	 * UserDetails venkat = User.builder()
+	 * .username("venkat")
+	 * .password(passwordEncoder.encode("venkat1"))
+	 * .roles("USER")
+	 * .build();
+	 * 
+	 * UserDetails gani = User.builder()
+	 * .username("gani")
+	 * .password(passwordEncoder.encode("gani1"))
+	 * .roles("ADMIN")
+	 * .build();
+	 * 
+	 * return new InMemoryUserDetailsManager(raj,venkat,gani);
+	 * }
+	 */
 	
+	@Bean
 	public AuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
 		DaoAuthenticationProvider auth = new DaoAuthenticationProvider(developerUserDetailsService);
 		auth.setPasswordEncoder(passwordEncoder);
-		
+
 		return auth;
 	}
-	
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
+
+	@Bean
+	public RoleHierarchy roleHierarchy() {
+		RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+		
+		hierarchy.setHierarchy("""
+				ROLE_ADMIN > ROLE_MANAGER
+				ROLE_MANAGER > ROLE_USER
+			""");
+		
+		return hierarchy;
+	}
 }
