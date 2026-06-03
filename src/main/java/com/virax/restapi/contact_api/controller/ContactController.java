@@ -31,11 +31,14 @@ public class ContactController {
 			summary = "for adding new contaacts",
 			description = "this required fileds of number,name,type and email"
 	)
+	
+	@PreAuthorize("hasRole('MANAGER','ADMIN')")
 	@PostMapping("add/contact")
 	public ResponseEntity<ContactDto> addContact(@RequestBody ContactDto contactDto) {
 		return new ResponseEntity<>(co.addContact(contactDto),HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasRole('MANAGER','ADMIN')")
 	@PostMapping("add/multi/contact")
 	public ResponseEntity<List<ContactDto>> addMultipleContact(@RequestBody List<ContactDto> ip) {
 		return new ResponseEntity<>(co.addMultipleContacts(ip),HttpStatus.MULTI_STATUS);
@@ -57,13 +60,14 @@ public class ContactController {
 		return new ResponseEntity<>("Name updated successfully!",HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasRole('ADMIN','MANAGER')")
 	@PutMapping("/updateByNumber/{mobileNumber}")
 	public ResponseEntity<String> updateContact(@PathVariable String mobileNumber, @RequestBody ContactDto c) {
 		co.updateContact(mobileNumber, c);
 		return new ResponseEntity<>("Contact updated successfully!",HttpStatus.OK);
 	}
 	
-	@PreAuthorize("hasRole('ADMIN')") // for static user role based auth
+	@PreAuthorize("hasRole('ADMIN')") // for user role based authorization
 	@DeleteMapping("/deleteByNumber/{mobileNumber}")
 	public ResponseEntity<String> deleteContact(@PathVariable String mobileNumber) {
 		co.deleteContactByMobileNumber(mobileNumber);
