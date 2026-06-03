@@ -5,15 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*; // Consolidated imports
 
-import com.virax.restapi.contact_api.model.Developer;
+import com.virax.restapi.contact_api.dtos.DeveloperDto;
 import com.virax.restapi.contact_api.service.DeveloperService;
 
 @RestController
@@ -24,17 +18,22 @@ public class DeveloperController {
     private DeveloperService developerService;
 
     @PostMapping("/add")
-    public ResponseEntity<Developer> addDeveloper(@RequestBody Developer developer) {
-        return new ResponseEntity<>(developerService.addDeveloper(developer), HttpStatus.CREATED);
+    public ResponseEntity<DeveloperDto> addDeveloper(@RequestBody DeveloperDto developerDto) {
+        return new ResponseEntity<>(developerService.addDeveloper(developerDto), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<DeveloperDto> updateDeveloper(@PathVariable int id, @RequestBody DeveloperDto developerDto) {
+        return new ResponseEntity<>(developerService.updateDeveloper(id, developerDto), HttpStatus.OK);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Developer>> getAllDevelopers() {
+    public ResponseEntity<List<DeveloperDto>> getAllDevelopers() {
         return new ResponseEntity<>(developerService.getAllDevelopers(), HttpStatus.OK);
     }
 
     @GetMapping("/get/{userName}")
-    public ResponseEntity<Developer> getDeveloperByUserName(@PathVariable String userName) {
+    public ResponseEntity<DeveloperDto> getDeveloperByUserName(@PathVariable String userName) {
         return new ResponseEntity<>(developerService.getDeveloperByUserName(userName), HttpStatus.OK);
     }
 
