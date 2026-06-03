@@ -41,6 +41,7 @@ public class SecurityConfig {
 		
 		return http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests( auth -> auth
+						.dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll() //, when a request fails to parse (e.g., due to invalid JSON), it forwards the request to the /error endpoint. However, since the /error endpoint was not permitted in your SecurityConfig, Spring Security intercepts the forward and returns a 401 Unauthorized, hiding the real 400 Bad Request error! so by adding this line you can see actual error
 						.requestMatchers("/api/developers/add").permitAll()
 						.anyRequest().authenticated()) // for static user based auth
 				.httpBasic(Customizer.withDefaults()) // for static user based auth
