@@ -14,26 +14,23 @@ import com.virax.restapi.contact_api.model.Role;
 
 @Mapper(componentModel = "spring")
 public interface DeveloperMapper {
-	
+
 	@Mapping(source = "roles", target = "roles")
 	public Developer toDeveloper(DeveloperDto developerDto);
-	
+
 	public DeveloperDto toDeveloperDto(Developer developer);
-	
-//	List<Role> toRoles(List<Integer> roleIds){
-//		
-//	}
+
 	default Set<Role> toRoles(Set<Integer> roleIds) {
 		if (roleIds == null) {
 			return null;
 		}
 		Set<Role> roles = new HashSet<Role>();
-		for (Integer roleId:roleIds) {
+		for (Integer roleId : roleIds) {
 			if (!(roleId == null)) {
 				Role role = new Role();
 				role.setId(roleId);
 				roles.add(role);
-	        }
+			}
 		}
 		return roles;
 	}
